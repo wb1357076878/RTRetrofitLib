@@ -10,6 +10,8 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
 import com.example.rtnewnetworklib.databinding.ActivityMainBinding
+import com.orhanobut.logger.AndroidLogAdapter
+import com.orhanobut.logger.Logger
 import com.rtmart.rtretrofitlib.RTRetrofitManager
 
 class MainActivity : AppCompatActivity() {
@@ -33,11 +35,6 @@ class MainActivity : AppCompatActivity() {
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
         }
-
-        RTRetrofitManager.newBuilder()
-            .register(this)
-            .baseUrl(null)
-            .build()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

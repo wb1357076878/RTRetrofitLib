@@ -39,10 +39,20 @@ interface RTCallback<T> {
 }
 
 interface RTCall<T> {
+    /**
+     * Cancel this call. An attempt will be made to cancel in-flight calls, and if the call has not
+     * yet been executed it never will be.
+     */
     fun cancel()
-
+    /**
+     * Asynchronously send the request and notify {@code callback} of its response or if an error
+     * occurred talking to the server, creating the request, or processing the response.
+     */
     fun enqueue(callback: RTCallback<T>)
-
+    /**
+     * Create a new, identical call to this one which can be enqueued or executed even if this call
+     * has already been.
+     */
     fun clone(): RTCall<T>
 }
 

@@ -8,11 +8,12 @@
  */
 package com.rtmart.rtretrofitlib
 
+import com.orhanobut.logger.Logger
 import okhttp3.Interceptor
 import okhttp3.Response
 import retrofit2.Invocation
 
-class RTUrlPathInterceptor: Interceptor {
+class RTUrlPathInterceptor : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
@@ -22,7 +23,7 @@ class RTUrlPathInterceptor: Interceptor {
     }
 }
 
-class RTLoggerInterceptor: Interceptor {
+class RTLoggerInterceptor : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
@@ -32,7 +33,12 @@ class RTLoggerInterceptor: Interceptor {
 
         val invocation = request.tag(Invocation::class.java)
         if (invocation != null) {
-            println("${invocation.method().declaringClass.simpleName}.${invocation.method().name} ${invocation.arguments()} ${response.code()} (${elapsedNanos / 1e6} ms)")
+            Logger.d(
+                "request url: ${response.request().url()}\n" +
+                        "invocation By ${invocation.method().declaringClass.simpleName}.${invocation.method().name}\n" +
+                        "arguments: ${invocation.arguments()} ${response.code()}\n" +
+                        "Response Total Time = ${elapsedNanos / 1e6} ms"
+            )
         }
 
         return response

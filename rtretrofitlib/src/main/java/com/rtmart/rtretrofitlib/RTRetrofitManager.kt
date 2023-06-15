@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
-import okio.Timeout
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -103,7 +102,8 @@ class RTRetrofitManager internal constructor(builder: Builder) {
             // 初始化 retrofit
             instance.retrofit =
                 Retrofit.Builder()
-                    .baseUrl(instance.baseUrl).client(instance.httpClient)
+                    .baseUrl(instance.baseUrl)
+                    .client(instance.httpClient)
                     .addConverterFactory(
                         RTAnnotatedConverterFactory.Builder()
                             .add(Gson::class.java, GsonConverterFactory.create())
@@ -144,7 +144,7 @@ class RTRetrofitManager internal constructor(builder: Builder) {
         }
 
         /**
-         * 设置baseUrl, 默认情况下为null，走配置path
+         * 设置baseUrl, 默认情况下为null，走配置@Path
          *
          * 如何不为null，则严格按照http://host/ 配置url，否则会抛出错误
          */
