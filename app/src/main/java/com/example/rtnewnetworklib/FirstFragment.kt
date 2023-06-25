@@ -10,19 +10,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.rtnewnetworklib.databinding.FragmentFirstBinding
-import com.example.rtnewnetworklib.network.RTLoginData
-import com.example.rtnewnetworklib.network.RTLoginParameter
-import com.example.rtnewnetworklib.network.RTLoginService
+import com.example.rtnewnetworklib.login.model.RTLoginParameter
+import com.example.rtnewnetworklib.login.service.RTLoginService
 import com.google.gson.Gson
 import com.orhanobut.logger.Logger
 import com.rtmart.rtretrofitlib.RTRetrofitManager
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import okhttp3.ResponseBody
-import okio.Buffer
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.

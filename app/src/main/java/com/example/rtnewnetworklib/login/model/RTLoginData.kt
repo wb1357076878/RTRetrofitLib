@@ -1,4 +1,6 @@
-package com.example.rtnewnetworklib.network
+package com.example.rtnewnetworklib.login.model
+
+import com.example.rtnewnetworklib.networkconfig.*
 
 /**
  * @ClassName: RTLoginData

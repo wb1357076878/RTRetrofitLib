@@ -1,4 +1,4 @@
-package com.example.rtnewnetworklib.network
+package com.example.rtnewnetworklib.networkconfig
 
 open class RTBaseParameter {
     /** 用户token，跟edp账号相对应*/

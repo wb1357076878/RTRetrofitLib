@@ -1,4 +1,4 @@
-package com.example.rtnewnetworklib.network
+package com.example.rtnewnetworklib.networkconfig
 
 /**
  * @ClassName: RTBaseResponse

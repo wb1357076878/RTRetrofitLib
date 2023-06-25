@@ -1,6 +1,6 @@
-package com.example.rtnewnetworklib.network
+package com.example.rtnewnetworklib.login.service
 
-import com.rtmart.rtretrofitlib.RTCall
+import com.example.rtnewnetworklib.login.model.*
 import kotlinx.coroutines.flow.Flow
 import okhttp3.ResponseBody
 import retrofit2.Call
