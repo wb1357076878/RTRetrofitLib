@@ -49,7 +49,7 @@ class ErrorHandlingCallAdapterFactory : CallAdapter.Factory() {
         returnType: Type,
         annotations: Array<out Annotation>,
         retrofit: Retrofit
-    ): CallAdapter<ResponseBody, MyCall<ResponseBody>>? {
+    ): CallAdapter<*, *>? {
         if (getRawType(returnType) != MyCall::class.java) {
             return null
         }
@@ -58,7 +58,7 @@ class ErrorHandlingCallAdapterFactory : CallAdapter.Factory() {
         }
         val responseType = getParameterUpperBound(0, returnType)
         val callbackExecutor = retrofit.callbackExecutor()
-        return ErrorHandlingCallAdapter(responseType, callbackExecutor)
+        return ErrorHandlingCallAdapter<Any>(responseType, callbackExecutor)
     }
 
     private class ErrorHandlingCallAdapter<R> constructor(
@@ -110,7 +110,7 @@ class MyCallAdapter<T>(private val call: Call<T>, private val callbackExecutor: 
 
             override fun onFailure(call: Call<T>, t: Throwable) {
                 if (t is IOException) {
-                    callback.networkError(t as IOException)
+                    callback.networkError(t)
                 } else {
                     callback.unexpectedError(t)
                 }

@@ -1,9 +1,14 @@
 package com.example.rtnewnetworklib
 
 import android.app.Application
+import com.example.rtnewnetworklib.network.RTUrlPathHandler
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 import com.rtmart.rtretrofitlib.RTRetrofitManager
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
 
 /**
  * @ClassName: RTApplication
@@ -26,6 +31,8 @@ class RTApplication: Application() {
             .register(this)
             .baseUrl(null)
             .timeout(30)
+            .urlPathTransform(RTUrlPathHandler())
             .build()
+
     }
 }

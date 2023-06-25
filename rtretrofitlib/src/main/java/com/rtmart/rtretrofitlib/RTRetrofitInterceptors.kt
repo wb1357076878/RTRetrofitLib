@@ -8,22 +8,47 @@
  */
 package com.rtmart.rtretrofitlib
 
+import android.util.Log
 import com.orhanobut.logger.Logger
+import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.Response
+import okio.Buffer
 import retrofit2.Invocation
 
-class RTUrlPathInterceptor : Interceptor {
+internal class RTUrlPathInterceptor : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request()
-        var response = chain.proceed(request)
+        var request = chain.request()
+        val url = request.url()
+        val path = request.url().encodedPath()
+        val buffer = Buffer()
+        request.body()?.writeTo(buffer)
+        val requestBodyContent = buffer.readUtf8()
+        // 打印 RequestBody 的内容
+        Logger.d("RequestBody Content:\n$requestBodyContent")
+
+        if (url.host() == RTRetrofitManager.tempHost) {
+            val pathHandler = RTRetrofitManager.urlPathTransformer()
+            val newUrlString = pathHandler.pathForKey(path.drop(1))
+            val urlBuilder = HttpUrl.parse(newUrlString)?.newBuilder()
+            val params = pathHandler.queryParameters(newUrlString, requestBodyContent)
+            for ((key, value) in params) {
+                urlBuilder?.addQueryParameter(key, value)
+            }
+            val finalUrl = urlBuilder?.build()
+            finalUrl?.let {
+                request = request.newBuilder().url(it).build()
+            }
+        }
+
+        val response = chain.proceed(request)
 
         return response
     }
 }
 
-class RTLoggerInterceptor : Interceptor {
+internal class RTLoggerInterceptor : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()

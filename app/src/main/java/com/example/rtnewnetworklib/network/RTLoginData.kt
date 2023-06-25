@@ -12,8 +12,21 @@ class RTLoginParameter: RTBaseParameter() {
 }
 
 class RTLoginData {
-    var employeeNo = "5721096991"
+    var employeeNo = "15721096991"
     var passWord = "123456"
     var storeId = "1001"
     var warehouseNo = "10"
+}
+
+class RTLoginResponse: RTBaseResponse() {
+    var data = RTLoginSuccessData()
+}
+
+class RTLoginSuccessData {
+    var employeeName: String = ""
+    var employeeNo = ""
+    var mobile = ""
+    var sectionName = ""
+    var sectionNo = ""
+    var sectionNoList = ""
 }

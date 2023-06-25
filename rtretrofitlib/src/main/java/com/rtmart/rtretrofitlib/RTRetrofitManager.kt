@@ -2,6 +2,7 @@ package com.rtmart.rtretrofitlib
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -29,12 +30,17 @@ class RTRetrofitManager internal constructor(builder: Builder) {
      *
      * set by call [Builder.baseUrl]
      */
-    val baseUrl: HttpUrl? = builder.baseUrl
+    val baseUrl: HttpUrl = builder.baseUrl
 
     /**
      * 超时时间：默认30s
      */
     val timeout: Long = builder.timeout
+
+    /**
+     * 通过下发接口pathKey转换得到完整的url path
+     */
+    internal val urlPathTransformer: RTRetrofitUrlPathTransformer = builder.urlPathTransformer
 
     /**
      * 全局client http请求端
@@ -57,6 +63,8 @@ class RTRetrofitManager internal constructor(builder: Builder) {
     @SuppressLint("StaticFieldLeak")
     companion object {
         private var instance: RTRetrofitManager = RTRetrofitManager()
+        internal const val tempHost = "www.example.com"
+        internal const val PlaceholderBaseUrl = "http://$tempHost"
 
         /**
          * Suggested instantiation method
@@ -87,6 +95,11 @@ class RTRetrofitManager internal constructor(builder: Builder) {
         }
 
         /**
+         * 获取path
+         */
+        internal fun urlPathTransformer() = instance.urlPathTransformer
+
+        /**
          * 全局配置httpClient & retrofit instance
          *
          * call by [Builder.build]
@@ -97,6 +110,8 @@ class RTRetrofitManager internal constructor(builder: Builder) {
                 OkHttpClient.Builder()
                     .connectTimeout(instance.timeout, TimeUnit.SECONDS)
                     .readTimeout(instance.timeout, TimeUnit.SECONDS)
+                    .addInterceptor(RTUrlPathInterceptor())
+                    .addInterceptor(RTLoggerInterceptor())
                     .followRedirects(false)
                     .build()
             // 初始化 retrofit
@@ -104,6 +119,8 @@ class RTRetrofitManager internal constructor(builder: Builder) {
                 Retrofit.Builder()
                     .baseUrl(instance.baseUrl)
                     .client(instance.httpClient)
+                    .addCallAdapterFactory(RTRetrofitGranularCallAdapterFactory.create())
+                    .addCallAdapterFactory(RTRetrofitFlowCallAdapterFactory.create())
                     .addConverterFactory(
                         RTAnnotatedConverterFactory.Builder()
                             .add(Gson::class.java, GsonConverterFactory.create())
@@ -117,14 +134,18 @@ class RTRetrofitManager internal constructor(builder: Builder) {
     class Builder() {
 
         internal var mContext: Context? = null
-        internal var baseUrl: HttpUrl = HttpUrl.get("http://www.example.com")
+        internal var baseUrl: HttpUrl = HttpUrl.get(PlaceholderBaseUrl)
         internal var timeout: Long = 30
+        internal var urlPathTransformer: RTRetrofitUrlPathTransformer =
+            object : RTRetrofitUrlPathTransformer {
+                override fun pathForKey(pathKey: String): String {
+                    return pathKey
+                }
+            }
 
         internal constructor(retrofitManager: RTRetrofitManager) : this() {
             this.mContext = retrofitManager.mContext
-            retrofitManager.baseUrl?.let {
-                this.baseUrl = it
-            }
+            this.baseUrl = retrofitManager.baseUrl
         }
 
         /**
@@ -164,6 +185,15 @@ class RTRetrofitManager internal constructor(builder: Builder) {
          */
         fun timeout(timeout: Long) = apply {
             this.timeout = timeout
+        }
+
+        /**
+         * 设置url path 转换器，用于下发接口pathKey => full path
+         *
+         * default return path Key themself
+         */
+        fun urlPathTransform(pathTransformer: RTRetrofitUrlPathTransformer) = apply {
+            this.urlPathTransformer = pathTransformer
         }
 
         fun build(): RTRetrofitManager {

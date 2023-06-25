@@ -22,7 +22,7 @@ annotation class Gson
 @Retention(AnnotationRetention.RUNTIME)
 annotation class SimpleXml
 
-class RTAnnotatedConverterFactory private constructor(private val factories: Map<Class<out Annotation>, Converter.Factory>) :
+internal class RTAnnotatedConverterFactory private constructor(private val factories: Map<Class<out Annotation>, Converter.Factory>) :
     Converter.Factory() {
 
     class Builder {

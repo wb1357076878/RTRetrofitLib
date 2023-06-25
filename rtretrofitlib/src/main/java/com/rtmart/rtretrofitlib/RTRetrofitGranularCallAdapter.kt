@@ -38,6 +38,11 @@ interface RTCallback<T> {
     fun unexpectedError(t: Throwable)
 }
 
+/**
+ * 用来取代retrofit 原生call<T>
+ *
+ * 颗粒度更高的callback view by [RTCallback]
+ */
 interface RTCall<T> {
     /**
      * Cancel this call. An attempt will be made to cancel in-flight calls, and if the call has not
@@ -56,22 +61,35 @@ interface RTCall<T> {
     fun clone(): RTCall<T>
 }
 
-class RTRetrofitGranularCallAdapterFactory : CallAdapter.Factory() {
+/**
+ * create A granular call adapter factory
+ *
+ * 构造方式：
+ * ```kotlin
+ * RTRetrofitGranularCallAdapterFactory.create()
+ * ````
+ */
+internal class RTRetrofitGranularCallAdapterFactory private constructor(): CallAdapter.Factory() {
+
+    companion object {
+        fun create() = RTRetrofitGranularCallAdapterFactory()
+    }
 
     override fun get(
         returnType: Type,
         annotations: Array<out Annotation>,
         retrofit: Retrofit
-    ): CallAdapter<ResponseBody, RTCall<ResponseBody>>? {
+    ): CallAdapter<*, *>? {
         if (getRawType(returnType) != RTCall::class.java) {
             return null
         }
+        // 判断是否是范型类型
         if (returnType !is ParameterizedType) {
             throw IllegalStateException("MyCall must have generic type (e.g., MyCall<ResponseBody>)")
         }
         val responseType = getParameterUpperBound(0, returnType)
         val callbackExecutor = retrofit.callbackExecutor()
-        return RTRetrofitGranularCallAdapter(responseType, callbackExecutor)
+        return RTRetrofitGranularCallAdapter<Any>(responseType, callbackExecutor)
     }
 
     private class RTRetrofitGranularCallAdapter<R> constructor(
@@ -126,7 +144,7 @@ private class RTGranularCallAdapter<T>(
 
             override fun onFailure(call: Call<T>, t: Throwable) {
                 if (t is IOException) {
-                    callback.networkError(t as IOException)
+                    callback.networkError(t)
                 } else {
                     callback.unexpectedError(t)
                 }
